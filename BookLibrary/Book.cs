@@ -32,11 +32,11 @@ namespace BookLibrary
     // ISBN struct, seperating it's key components to ease parsing and validation.
     public struct _ISBNStruct
     {
-        public readonly int Prefix { get; }
-        public readonly int Group { get; }
-        public readonly int Registrant { get; }
-        public readonly int Publication { get; }
-        public readonly int Check { get; }
+        public int Prefix { get; }
+        public int Group { get; }
+        public int Registrant { get; }
+        public int Publication { get; }
+        public int Check { get; }
 
         public _ISBNStruct(int prefix, int group, int registrant, int publication, int check)
         {
