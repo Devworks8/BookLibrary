@@ -35,7 +35,28 @@ namespace BookLibrary
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Desktop desktop = new Desktop();
+
+            Workspace title = new Workspace(new Origin(0, 0), desktop.ConsoleWidth, 2);
+            Workspace description = new Workspace(new Origin(0, title.DisplayHeight + 1), desktop.ConsoleWidth, 10);
+            Workspace menu = new Workspace(new Origin(0, description.DisplayHeight + 1), desktop.ConsoleWidth / 2, 30);
+            Workspace info = new Workspace(new Origin(menu.DisplayWidth + 1, description.DisplayHeight + 1), desktop.ConsoleWidth, 30);
+            Workspace command = new Workspace(new Origin(0, info.DisplayHeight + 1), desktop.ConsoleWidth, desktop.ConsoleHeight);
+
+            desktop.AddWorkspace("title", title);
+            desktop.AddWorkspace("desc", description);
+            desktop.AddWorkspace("menu", menu);
+            desktop.AddWorkspace("info", info);
+            desktop.AddWorkspace("command", command);
+
+            desktop.SendToWorkspace("title", "Title", "Red");
+            desktop.SendToWorkspace("desc", "This is the description panel...");
+            desktop.SendToWorkspace("menu", "1) Item 1\n2) I tem 2\n3) Item 3");
+            desktop.SendToWorkspace("info", "Information panel");
+            desktop.SendToWorkspace("command", "Command panel");
+
+
+            Console.ReadKey(true);
         }
     }
 }
