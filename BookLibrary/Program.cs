@@ -35,13 +35,14 @@ namespace BookLibrary
     {
         public static void Main(string[] args)
         {
+
             Desktop desktop = new Desktop();
 
             Workspace title = new Workspace(new Origin(0, 0), desktop.ConsoleWidth, 2);
-            Workspace description = new Workspace(new Origin(0, title.DisplayHeight + 1), desktop.ConsoleWidth, 10);
-            Workspace menu = new Workspace(new Origin(0, description.DisplayHeight + 1), desktop.ConsoleWidth / 2, 30);
-            Workspace info = new Workspace(new Origin(menu.DisplayWidth + 1, description.DisplayHeight + 1), desktop.ConsoleWidth, 30);
-            Workspace command = new Workspace(new Origin(0, info.DisplayHeight + 1), desktop.ConsoleWidth, desktop.ConsoleHeight);
+            Workspace description = new Workspace(new Origin(0, title.WorkspaceHeight + 1), desktop.ConsoleWidth, 10);
+            Workspace menu = new Workspace(new Origin(0, description.WorkspaceHeight + 1), desktop.ConsoleWidth / 2, 30);
+            Workspace info = new Workspace(new Origin(menu.WorkspaceWidth + 1, description.WorkspaceHeight + 1), desktop.ConsoleWidth, 30);
+            Workspace command = new Workspace(new Origin(0, info.WorkspaceHeight + 1), desktop.ConsoleWidth, desktop.ConsoleHeight);
 
             desktop.AddWorkspace("title", title);
             desktop.AddWorkspace("desc", description);
@@ -49,14 +50,19 @@ namespace BookLibrary
             desktop.AddWorkspace("info", info);
             desktop.AddWorkspace("command", command);
 
-            desktop.SendToWorkspace("title", "Title", "Red");
-            desktop.SendToWorkspace("desc", "This is the description panel...");
-            desktop.SendToWorkspace("menu", "1) Item 1\n2) I tem 2\n3) Item 3");
-            desktop.SendToWorkspace("info", "Information panel");
-            desktop.SendToWorkspace("command", "Command panel");
+            while(true)
+            {
+                desktop.DrawDesktop();
+                desktop.SendToWorkspace("title", "Title");
+                desktop.SendToWorkspace("desc", "This is the description panel...");
+                desktop.SendToWorkspace("menu", "1) Item 1\n2) I tem 2\n3) Item 3");
+                desktop.SendToWorkspace("info", "Information panel-------------------------------------------------------------------------------------");
+                desktop.SendToWorkspace("command", "Command panel");
+                desktop.SendToWorkspace("title", "Extra text");
+                Console.ReadKey(true);
+            }
 
-
-            Console.ReadKey(true);
+       
         }
     }
 }
