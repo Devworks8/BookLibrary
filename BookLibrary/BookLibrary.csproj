@@ -28,6 +28,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="Mono.Options">
+      <HintPath>..\packages\Mono.Options.5.3.0\lib\net4-client\Mono.Options.dll</HintPath>
+    </Reference>
+    <Reference Include="ManyConsole">
+      <HintPath>..\packages\ManyConsole.2.0.1\lib\net46\ManyConsole.dll</HintPath>
+    </Reference>
+    <Reference Include="ManyConsoleModeCommand">
+      <HintPath>..\packages\ManyConsole.2.0.1\lib\net46\ManyConsoleModeCommand.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -35,6 +44,10 @@
     <Compile Include="Book.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Display.cs" />
+    <Compile Include="Command.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
