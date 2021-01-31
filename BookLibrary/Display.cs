@@ -27,9 +27,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BookLibrary
 {
@@ -50,22 +48,24 @@ namespace BookLibrary
         public Point WorkspaceOrigin { get; }
         public int WorkspaceWidth { get; }
         public int WorkspaceHeight { get; }
+        public int Padding { get; }
         public Queue<string> FiFoBuffer;
 
-        public Workspace(Point origin, int width, int height)
+        public Workspace(Point origin, int width, int height, int padding=0)
         {
             WorkspaceOrigin = origin;
             WorkspaceWidth = Convert.ToInt16(Convert.ToDouble(Console.WindowWidth) / 100 * width);
             WorkspaceHeight = Convert.ToInt16(Convert.ToDouble(Console.WindowHeight) / 100 * height);
+            Padding = padding;
             FiFoBuffer = new Queue<string>();
         }
 
         public void PrintBuffer()
         {
             int counter = 1;
-            foreach (Object msg in FiFoBuffer)
+            foreach (String msg in FiFoBuffer)
             {
-                Console.WriteLine(msg);
+                Console.WriteLine(Display.AddPadding(msg, Padding));
                 Console.SetCursorPosition(WorkspaceOrigin.X, WorkspaceOrigin.Y+counter);
                 counter++;
             }
@@ -80,26 +80,31 @@ namespace BookLibrary
             }
             else FiFoBuffer.Enqueue(msg);
         }
+
+        public void FlushBuffer()
+        {
+            FiFoBuffer.Clear();
+        }
     }
 
     public class Desktop
     {
-        public Dictionary<string, Workspace> Workspaces = new Dictionary<string, Workspace>();
-        public int ConsoleWidth = Console.WindowWidth;
-        public int ConsoleHeight = Console.WindowHeight;
-        private bool _ShowBorder = true;
-        public bool ShowBorder
+        public static Dictionary<string, Workspace> Workspaces = new Dictionary<string, Workspace>();
+        public int ConsoleWidth { get; }
+        public int ConsoleHeight { get; }
+
+        public Desktop()
         {
-            get => _ShowBorder;
-            set => _ShowBorder = value;
+            ConsoleWidth = Console.WindowWidth;
+            ConsoleHeight = Console.WindowHeight;
         }
 
-        public void AddWorkspace(string id, Workspace workspace)
+        public static void AddWorkspace(string id, Workspace workspace)
         {
             Workspaces.Add(id, workspace);
         }
 
-        public void SendToWorkspace(string id, string msg)
+        public static void SendToWorkspace(string id, string msg)
         {
             if (Workspaces.ContainsKey(id))
             {
@@ -107,7 +112,7 @@ namespace BookLibrary
             }
         }
 
-        public void DrawDesktop()
+        public static void DrawDesktop()
         {
             Console.Clear();
             foreach(KeyValuePair<string, Workspace> kvp in Workspaces)

@@ -45,6 +45,9 @@
     <Compile Include="Helper.cs" />
     <Compile Include="Display.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="Invoker.cs" />
+    <Compile Include="Receiver.cs" />
+    <Compile Include="CDefs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

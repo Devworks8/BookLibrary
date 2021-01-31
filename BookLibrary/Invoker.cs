@@ -1,13 +1,13 @@
 ﻿// Name: Christian Lachapelle
 //  Student #: A00230066
 //
-//  Title: Helper class
-//  Version: 1.0.0
+//  Title: 
+//  Version: 
 //
-//  Description: Collection of helper methods
+//  Description: 
 //
 //
-// Helper.cs
+// Invoker.cs
 //
 //  Author:
 //       Christian Lachapelle <lachapellec@gmail.com>
@@ -26,29 +26,26 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
+
 namespace BookLibrary
 {
-    public static class Display
+    /// <summary>
+    /// The <c>Invoker</c> class tells the <c>Command</c> class
+    /// to execute their actions.
+    /// </summary>
+    public class Invoker
     {
-        // This method adds padding to a string to center align
-        public static string CenterAligned(string s, int width)
+        private Command _command;
+        private string[] _args;
+        private string _id;
+
+        public void SetCommand(Command command, string[] args, string id)
         {
-            if (s.Length >= width)
-            {
-                return s;
-            }
-
-            int leftPadding = (width - s.Length) / 2;
-            int rightPadding = width - s.Length - leftPadding;
-
-            return new string(' ', leftPadding) + s + new string(' ', rightPadding);
+            this._command = command;
+            this._args = args;
+            this._id = id;
         }
 
-        // This method adds padding to the left of the string
-        public static string AddPadding(string s, int width)
-        {
-            return new string(' ', width) + s;
-        }
+        public void ExecuteCommand() => _command.Execute(_args, _id);
     }
 }

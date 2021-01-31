@@ -28,13 +28,9 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
-using ManyConsole;
 
 namespace BookLibrary
 {
-    /// <summary>
-    /// The class <c>Command</c> executes the action from a <c>Receiver</c> class.
-    /// </summary>
     abstract public class Command
     {
         protected Receiver Receiver;
@@ -43,215 +39,50 @@ namespace BookLibrary
             this.Receiver = receiver;
         }
 
-        public abstract void Execute(string[] args);
+        public abstract void Execute(string[] args, string id);
     }
 
-    /// <summary>
-    /// The following classes constitute the commands.
-    /// <list type="bullet">
-    ///<item>
-    ///<description>
-    ///<c>quit</c> => Exit the application
-    ///</description>
-    ///</item>
-    /// </list>
-    /// </summary>
     public class quit : Command
     {
         public quit(Receiver receiver) : base(receiver) { }
-        public override void Execute(string[] args) => Receiver.quit(args);
+        public override void Execute(string[] args, string id) => Receiver.quit(args);
     }
 
     public class help : Command
     {
         public help(Receiver receiver) : base(receiver) { }
-        public override void Execute(string[] args) => Receiver.help(args);
+        public override void Execute(string[] args, string id) => Receiver.help(args, id);
     }
 
     public class add : Command
     {
         public add(Receiver receiver) : base(receiver) { }
-        public override void Execute(string[] args) => Receiver.add(args);
+        public override void Execute(string[] args, string id) => Receiver.add(args);
     }
 
     public class delete : Command
     {
         public delete(Receiver receiver) : base(receiver) { }
-        public override void Execute(string[] args) => Receiver.delete(args);
+        public override void Execute(string[] args, string id) => Receiver.delete(args);
     }
 
     public class search : Command
     {
         public search(Receiver receiver) : base(receiver) { }
-        public override void Execute(string[] args) => Receiver.search(args);
+        public override void Execute(string[] args, string id) => Receiver.search(args);
     }
 
-    /// <summary>
-    /// The class <c>Receiver</c> is the object that has an action
-    /// to be executed from the <c>Command</c> class.
-    /// </summary>
-    public class Receiver
+    public class menu : Command
     {
-        public static IEnumerable<ConsoleCommand> GetCommands()
-        {
-            return ConsoleCommandDispatcher.FindCommandsInSameAssemblyAs(typeof(Receiver));
-        }
-
-        public void quit(string[] args)
-        {
-            var commands = GetCommands();
-            ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
-        }
-
-        public void help(string[] args)
-        {
-            var commands = GetCommands();
-
-            if (args.Length > 1)
-            {
-                foreach (ConsoleCommand cmd in commands)
-                {
-                    if (!(cmd.Aliases is null) && cmd.Aliases[0] == args[1])
-                    {
-                        ManyConsole.Internal.ConsoleHelp.ShowCommandHelp(cmd, Console.Out);
-                        break;
-                    }
-                    else
-                    {
-                        ManyConsole.Internal.ConsoleHelp.ShowSummaryOfCommands(commands, Console.Out);
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                ManyConsole.Internal.ConsoleHelp.ShowSummaryOfCommands(commands, Console.Out);
-            }
-        }
-
-        public void add(string[] args)
-        {
-            var commands = GetCommands();
-            ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
-
-
-        }
-
-        public void delete(string[] args)
-        {
-            var commands = GetCommands();
-            ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
-
-
-        }
-
-        public void search(string[] args)
-        {
-            var commands = GetCommands();
-            ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
-
-
-        }
-
+        public menu(Receiver receiver) : base(receiver) { }
+        public override void Execute(string[] args, string id) => Receiver.menu(args);
     }
 
-
-    /// <summary>
-    /// The <c>Invoker</c> class tells the <c>Command</c> class
-    /// to execute their actions.
-    /// </summary>
-    public class Invoker
+    public class modify : Command
     {
-        private Command _command;
-        private string[] _args;
-
-        public void SetCommand(Command command, string[] args)
-        {
-            this._command = command;
-            this._args = args;
-        }
-
-        public void ExecuteCommand() => _command.Execute(_args);
+        public modify(Receiver receiver) : base(receiver) { }
+        public override void Execute(string[] args, string id) => Receiver.modify(args);
     }
-
-
-
-    //////////////////////////////////////////////////////////////////////////
-    /// Command Classes
-    //////////////////////////////////////////////////////////////////////////
- 
-
-    public class HelpCommand : ConsoleCommand
-    {
-        public HelpCommand()
-        {
-            IsCommand("help", "Display command list.");
-        }
-
-        public override int Run(string[] remainingArguments)
-        {
-            return 0;
-        }
-    }
-
-    public class QuitCommand : ConsoleCommand
-    {
-        public QuitCommand()
-        {
-            IsCommand("quit", "Quit the program.");
-        }
-
-        public override int Run(string[] remainingArguments)
-        {
-            Environment.Exit(0);
-            return 0;
-        }
-    }
-
-    public class AddCommand : ConsoleCommand
-    {
-        public AddCommand()
-        {
-            IsCommand("add", "Add a record.");
-        }
-
-        public override int Run(string[] remainingArguments)
-        {
-            Environment.Exit(0);
-            return 0;
-        }
-    }
-
-    public class DeleteCommand : ConsoleCommand
-    {
-        public DeleteCommand()
-        {
-            IsCommand("delete", "Delete a record.");
-        }
-
-        public override int Run(string[] remainingArguments)
-        {
-            Environment.Exit(0);
-            return 0;
-        }
-    }
-
-    public class SearchCommand : ConsoleCommand
-    {
-        public SearchCommand()
-        {
-            IsCommand("search", "Search for a record.");
-        }
-
-        public override int Run(string[] remainingArguments)
-        {
-            Environment.Exit(0);
-            return 0;
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-
 
     public static class CommandBot
     {
@@ -259,10 +90,15 @@ namespace BookLibrary
         static Invoker invoker = new Invoker();
         static Desktop desktop = new Desktop();
 
+        // Static Workspace text
+        static public string strTitle;
+        static public string strDescription;
+        static public string strHeaders;
+        static public string strMenu;
 
         // List of valid commands to be created dynamically
         public static List<string> commandOptions =
-            new List<string> { "quit", "add", "help", "delete", "search" };
+            new List<string> { "quit", "add", "help", "delete", "search", "modify", "menu" };
 
         // Hold the valid command objects in a Dictionary
         public static Dictionary<string, Command> validCommands =
@@ -281,49 +117,41 @@ namespace BookLibrary
         {
             Console.Write(prompt);
 
-            // Capture the cursor position just after the prompt
-            var inputCursorLeft = Console.CursorLeft;
-            var inputCursorTop = Console.CursorTop;
-
-            // Now get user input
+            // Get user input
             string input = Console.ReadLine();
 
             string[] args = input.Split(' ');
 
             while (!String.IsNullOrEmpty(input))
             {
-                desktop.DrawDesktop();
+                
                 if (commandOptions.Contains(args[0]))
                 {
-                    // Erase the last error message (if there was one)
-                    //Console.Write(new string(' ', Console.WindowWidth));
-                    desktop.SendToWorkspace("cmd", new string(' ', desktop.Workspaces["cmd"].WorkspaceWidth));
-                    invoker.SetCommand(validCommands[args[0].ToLower()], args);
+                    // CLear Command Window
+                    Desktop.Workspaces["cmd"].FlushBuffer();
+
+                    if (args[0].ToLower() == "help") invoker.SetCommand(validCommands[args[0].ToLower()], args, "menu");
+                    else invoker.SetCommand(validCommands[args[0].ToLower()], args, "info");
+
                     invoker.ExecuteCommand();
+
+                    Desktop.DrawDesktop();
                     break;
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    // PadRight ensures that this line extends the width
-                    // of the console window so it erases itself each time
-                    desktop.SendToWorkspace("cmd", $"Error! '{input}' is not a valid response".PadRight(Console.WindowWidth));
-                    //Console.Write($"Error! '{input}' is not a valid response".PadRight(Console.WindowWidth));
-                    Console.ResetColor();
+                    Desktop.SendToWorkspace("cmd", $"Error! '{input}' is not a valid response".PadRight(Console.WindowWidth));
 
-                    // Set cursor position to just after the promt again, write
-                    // a blank line, and reset the cursor one more time
-                    Console.SetCursorPosition(inputCursorLeft, inputCursorTop);
-                    Console.Write(new string(' ', input.Length));
-                    Console.SetCursorPosition(inputCursorLeft, inputCursorTop);
+                    Desktop.DrawDesktop();
 
+                    Console.Write(prompt);
                     input = Console.ReadLine();
                     args = input.Split(' ');
                 }
             }
 
-            // Erase the last error message (if there was one)
-            Console.Write(new string(' ', Console.WindowWidth));
+            // CLear Command Window
+            Desktop.Workspaces["cmd"].FlushBuffer();
 
         }
 
@@ -331,48 +159,50 @@ namespace BookLibrary
         {
             // Create individual workspaces
             Workspace title = new Workspace(new Point(0, 0), 100, 2);
-            Workspace description = new Workspace(new Point(0, title.WorkspaceHeight + 1), 100, 12);
-            Workspace headers = new Workspace(new Point(0, description.WorkspaceHeight + 1), 100, 5);
-            Workspace menu = new Workspace(new Point(0, description.WorkspaceHeight + 5), 50, 30);
-            Workspace info = new Workspace(new Point(menu.WorkspaceWidth + 1, menu.WorkspaceOrigin.Y), 50, 30);
-            Workspace cmd = new Workspace(new Point(0, info.WorkspaceOrigin.Y + info.WorkspaceHeight + 3), 100, 3);
+            Workspace description = new Workspace(new Point(0, title.WorkspaceHeight + 1), 100, 15);
+            Workspace headers = new Workspace(new Point(0, description.WorkspaceHeight + 1), 100, 2);
+            Workspace menu = new Workspace(new Point(0, description.WorkspaceHeight + 5), 50, 40);
+            Workspace info = new Workspace(new Point(menu.WorkspaceWidth + 1, menu.WorkspaceOrigin.Y), 50, 40, 2);
+            Workspace cmd = new Workspace(new Point(0, info.WorkspaceOrigin.Y + info.WorkspaceHeight + 3), 100, 3, 2);
 
             // Add workspaces to desktop
-            desktop.AddWorkspace("title", title);
-            desktop.AddWorkspace("desc", description);
-            desktop.AddWorkspace("headers", headers);
-            desktop.AddWorkspace("menu", menu);
-            desktop.AddWorkspace("info", info);
-            desktop.AddWorkspace("cmd", cmd);
+            Desktop.AddWorkspace("title", title);
+            Desktop.AddWorkspace("desc", description);
+            Desktop.AddWorkspace("headers", headers);
+            Desktop.AddWorkspace("menu", menu);
+            Desktop.AddWorkspace("info", info);
+            Desktop.AddWorkspace("cmd", cmd);
 
             // Static Workspace text
-            string strTitle = "Book Database - Version 1.0.0".PadLeft(desktop.Workspaces["title"].WorkspaceWidth/2,' ');
+            strTitle = Display.CenterAligned("Book Database - Version 1.0.0", Desktop.Workspaces["title"].WorkspaceWidth);
 
-            string strDescription =
-                new String('-', desktop.Workspaces["desc"].WorkspaceWidth) + "\n" +
+            strDescription =
+                new String('-', Desktop.Workspaces["desc"].WorkspaceWidth) + "\n" +
                 "DESCRIPTION\n" +
                 "\nA database that stores the Title, Author's Name, ISBN, Genre, Type, and Publisher of a piece of literature.\n" +
                 "The program gives you the ability to Add, Delete, Search, Modify a record.\n" +
                 "It also allows you to search using different criterias.\n";
 
-            string strHeaders = new String('-',  desktop.Workspaces["headers"].WorkspaceWidth) + "\n"+
-                "Menu".PadLeft((desktop.Workspaces["menu"].WorkspaceWidth-4)/2, ' ')+ "|".PadLeft(desktop.Workspaces["menu"].WorkspaceWidth - (desktop.Workspaces["menu"].WorkspaceWidth - 4) / 2, ' ')+
-                "Information".PadLeft((desktop.Workspaces["info"].WorkspaceWidth - 11)- (desktop.Workspaces["menu"].WorkspaceWidth - 4) / 2, ' ')+"\n"+
-                new String('-', desktop.Workspaces["headers"].WorkspaceWidth);
+            strHeaders = new String('-', Desktop.Workspaces["headers"].WorkspaceWidth) + "\n" +
+                Display.CenterAligned("Menu", Desktop.Workspaces["menu"].WorkspaceWidth) + "|" +
+                Display.CenterAligned("Information", Desktop.Workspaces["info"].WorkspaceWidth) + "\n" +
+                new String('-', Desktop.Workspaces["headers"].WorkspaceWidth);
 
-            string strMenu =
-                $"\t\t\t\t\tCommand\t\t Deescription\n\n" +
-                $"\t\t\t\t\tadd\t\t Add a record.\n" +
-                $"\t\t\t\t\tdelete\t\t Delete a record.\n" +
-                $"\t\t\t\t\tmodify\t\t Modify a record.\n" +
-                $"\t\t\t\t\tsearch\t\t Search for a record.\n" +
-                $"\t\t\t\t\thelp\t\t Extended help.\n" +
-                $"\t\t\t\t\tquit\t\t Quit the program.\n\n";
+            strMenu =
+                $"Command\t\t Deescription\n\n" +
+                $"add\t\t Add a record.\n" +
+                $"delete\t\t Delete a record.\n" +
+                $"modify\t\t Modify a record.\n" +
+                $"search\t\t Search for a record.\n" +
+                $"help\t\t Extended help.\n" +
+                $"menu\t\t Show this menu.\n" +
+                $"quit\t\t Quit the program.\n\n";
 
-            desktop.SendToWorkspace("title", strTitle);
-            desktop.SendToWorkspace("desc", strDescription);
-            desktop.SendToWorkspace("headers", strHeaders);
-            desktop.SendToWorkspace("menu", strMenu);
+
+            Desktop.SendToWorkspace("title", strTitle);
+            Desktop.SendToWorkspace("desc", strDescription);
+            Desktop.SendToWorkspace("headers", strHeaders);
+            Desktop.SendToWorkspace("menu", strMenu);
 
             // Create command objects and assign to dictionary
             foreach (string command in commandOptions)
@@ -382,7 +212,7 @@ namespace BookLibrary
 
             while (true)
             {
-                desktop.DrawDesktop();
+                Desktop.DrawDesktop();
                 GetUserInput("> ");
             }
         }
