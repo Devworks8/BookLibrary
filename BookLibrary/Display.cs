@@ -33,12 +33,12 @@ using System.Linq;
 
 namespace BookLibrary
 {
-    public struct Origin
+    public struct Point
     {
         public int X;
         public int Y;
 
-        public Origin(int x, int y)
+        public Point(int x, int y)
         {
             X = x;
             Y = y;
@@ -47,28 +47,38 @@ namespace BookLibrary
 
     public class Workspace
     {
-        public Origin CursorPosition;
-        public Origin WorkspaceOrigin { get; }
+        public Point WorkspaceOrigin { get; }
         public int WorkspaceWidth { get; }
         public int WorkspaceHeight { get; }
-        public Queue<string> FiFoBuffer { get; set; }
+        public Queue<string> FiFoBuffer;
 
-        public Workspace(Origin origin, int width, int height)
+        public Workspace(Point origin, int width, int height)
         {
             WorkspaceOrigin = origin;
-            CursorPosition = origin;
-            WorkspaceWidth = WorkspaceOrigin.X + width > Console.WindowWidth ? Console.WindowWidth - WorkspaceOrigin.X : width;
-            WorkspaceHeight = WorkspaceOrigin.Y + height > Console.WindowHeight ? Console.WindowHeight - WorkspaceOrigin.Y : height;
+            WorkspaceWidth = Convert.ToInt16(Convert.ToDouble(Console.WindowWidth) / 100 * width);
+            WorkspaceHeight = Convert.ToInt16(Convert.ToDouble(Console.WindowHeight) / 100 * height);
             FiFoBuffer = new Queue<string>();
         }
 
         public void PrintBuffer()
         {
+            int counter = 1;
             foreach (Object msg in FiFoBuffer)
             {
                 Console.WriteLine(msg);
-                Console.SetCursorPosition(WorkspaceOrigin.X, CursorPosition.Y+1);
+                Console.SetCursorPosition(WorkspaceOrigin.X, WorkspaceOrigin.Y+counter);
+                counter++;
             }
+        }
+
+        public void UpdateBuffer(string msg)
+        {
+            if (FiFoBuffer.Count == WorkspaceHeight)
+            {
+                var _ = FiFoBuffer.Dequeue();
+                FiFoBuffer.Enqueue(msg);
+            }
+            else FiFoBuffer.Enqueue(msg);
         }
     }
 
@@ -84,78 +94,25 @@ namespace BookLibrary
             set => _ShowBorder = value;
         }
 
-        static IEnumerable<string> Split(string str, int chunckSize)
-        {
-            return Enumerable.Range(0, str.Length / chunckSize).Select(i => str.Substring(i * chunckSize, chunckSize));
-        }
-
         public void AddWorkspace(string id, Workspace workspace)
         {
             Workspaces.Add(id, workspace);
         }
 
-        public void SendToWorkspace(string id, string msg, string color="")
+        public void SendToWorkspace(string id, string msg)
         {
             if (Workspaces.ContainsKey(id))
             {
-                // Calculate total lines required
-                var totalLines = msg.Length > Workspaces[id].WorkspaceWidth ? msg.Length / Workspaces[id].WorkspaceWidth : 0;
-                string[] wordWrap;
-
-                if (totalLines == 0)
-                {
-                    wordWrap = new string[1];
-                }
-                else
-                {
-                    wordWrap = new string[totalLines+1];
-                }
-
-                //FIXME: It's splitting the text, but only storring the first line in the buffer.
-                // Split the message if needed to fit in the workspace.
-                if (totalLines > 0)
-                {
-                    for (int i = 0; i < totalLines; i++)
-                    {
-                        wordWrap = Split(msg, Workspaces[id].WorkspaceWidth).ToArray();
-                    }
-                }
-                else
-                {
-                    wordWrap[0] = msg;
-                }
-
-                // Add message to workspace buffer. Move text up if needed.
-                if (Workspaces[id].FiFoBuffer.Count + totalLines <= Workspaces[id].WorkspaceHeight)
-                {
-                    foreach (string str in wordWrap)
-                    {
-                        Workspaces[id].FiFoBuffer.Enqueue(str);
-                    }
-                }
-                else
-                {
-                    for (int _=0; _ < Workspaces[id].FiFoBuffer.Count+totalLines-Workspaces[id].WorkspaceHeight; _++)
-                    {
-                        foreach (string str in wordWrap)
-                        {
-                            Workspaces[id].FiFoBuffer.Dequeue();
-                            Workspaces[id].FiFoBuffer.Enqueue(str);
-                        }
-                    }
-                }
+                Workspaces[id].UpdateBuffer(msg);
             }
         }
 
-        //FIXME: The buffer only fills to a maximum of 2 lines.
         public void DrawDesktop()
         {
             Console.Clear();
             foreach(KeyValuePair<string, Workspace> kvp in Workspaces)
             {
                 Console.SetCursorPosition(kvp.Value.WorkspaceOrigin.X, kvp.Value.WorkspaceOrigin.Y);
-                kvp.Value.CursorPosition.X = kvp.Value.WorkspaceOrigin.X;
-                kvp.Value.CursorPosition.Y = kvp.Value.WorkspaceOrigin.Y;
 
                 kvp.Value.PrintBuffer();
             }
