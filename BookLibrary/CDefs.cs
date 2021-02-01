@@ -34,8 +34,6 @@ using ManyConsole;
 
 namespace BookLibrary
 {
-
-
     public class HelpCommand : ConsoleCommand
     {
         public HelpCommand()
@@ -203,13 +201,84 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
         {
             IsCommand("delete", "Delete a record.");
             HasAlias("delete");
-            HasLongDescription(@"Delete a new record to the database.");
+            HasLongDescription(@"Delete a record to the database.");
+        }
+
+        private List<(string, string)> ConstructQuery()
+        {
+            List<(string, string)> query = new List<(string, string)>();
+
+            if (!String.IsNullOrEmpty(Title)) query.Add(("Title", Title));
+            if (!String.IsNullOrEmpty(AFName)) query.Add(("AFName", AFName));
+            if (!String.IsNullOrEmpty(ALName)) query.Add(("ALNAME", ALName));
+            if (!String.IsNullOrEmpty(ISBN)) query.Add(("ISBN", ISBN));
+            if (!String.IsNullOrEmpty(Genre)) query.Add(("Genre", Genre));
+            if (!String.IsNullOrEmpty(Cat)) query.Add(("Cat", Cat));
+            if (!String.IsNullOrEmpty(Publisher)) query.Add(("Publisher", Publisher));
+
+            return query;
         }
 
         public override int Run(string[] remainingArguments)
         {
-            //TODO: Add functionality
-            Desktop.SendToWorkspace("info", "Delete command entered");
+            Desktop.DrawDesktop();
+            var query = ConstructQuery();
+
+            bool noMatch = false;
+            int totalDeleted = 0;
+            Book result = new Book();
+
+            foreach (Book book in CommandBot.library.Catalogue.Values)
+            {
+                byte count = 1;
+                noMatch = false;
+
+                foreach (var arg in query)
+                {
+                    if (noMatch) break;
+                    switch (arg.Item1)
+                    {
+                        case "Title":
+                            if (book.Title != arg.Item2) noMatch = true;
+                            break;
+                        case "AFName":
+                            if (book.AuthorFirstName != arg.Item2) noMatch = true;
+                            break;
+                        case "ALName":
+                            if (book.AuthorLastName != arg.Item2) noMatch = true;
+                            break;
+                        case "ISBN":
+                            if (!book.ISBN.Equals(Book.ParseISBN(arg.Item2))) noMatch = true;
+                            break;
+                        case "Genre":
+                            if (!book.Genre.Equals(arg.Item2)) noMatch = true;
+                            break;
+                        case "Cat":
+                            if (!book.Type.Equals(arg.Item2)) noMatch = true;
+                            break;
+                        case "Publisher":
+                            if (book.Publisher != arg.Item2) noMatch = true;
+                            break;
+                    }
+                }
+                if (count == query.Count && !noMatch)
+                {
+                    result = book;
+                    break;
+                }
+            }
+            if (noMatch) Desktop.SendToWorkspace("cmd", "ERROR: Record not found.");
+            else
+            {
+                Desktop.Workspaces["info"].FlushBuffer();
+                Desktop.SendToWorkspace("info",
+                    $"Title:\t {result.Title}\n" +
+                    $"Author:\t {result.AuthorFirstName}, {result.AuthorLastName}\n" +
+                    $"ISBN:\t {result.ISBN.ToString()}\n" +
+                    $"Publisher:\t {result.Publisher}\n" +
+                    $"Genre:\t {result.Genre}\n" +
+                    $"Category:\t {(_TypeEnum)result.Type}\n");
+            }
             return 0;
         }
     }
@@ -274,125 +343,164 @@ Expected usage at the CLI: fetch <options>");
             HasOption("p|publisher=", "Publisher name.", p => Publisher = p);
         }
 
-        public override int Run(string[] remainingArguments)
+        private List<(string, string)> ConstructQuery()
         {
-            Desktop.DrawDesktop();
-            var query = ConstructQuery();
-
-            bool noMatch = false;
-            Book result = new Book();
-
-            if (query.Count == 0)
-            {
-
-                int blockSize = 7;
-                int workspaceSize = Desktop.Workspaces["info"].WorkspaceHeight;
-                int chunk = 0;
-                string results = "";
-
-                foreach (Book book in CommandBot.library.Catalogue.Values)
-                {
-                    if (chunk + blockSize > workspaceSize)
-                    {
-                        Desktop.Workspaces["info"].FlushBuffer();
-                        Desktop.SendToWorkspace("info", results);
-                        Desktop.SendToWorkspace("cmd", "Press Any Key to Continue...");
-                        Desktop.DrawDesktop();
-                        Console.ReadKey(true);
-                        results = $"Title:\t {book.Title}\n" +
-                        $"Author:\t {book.AuthorFirstName}, {book.AuthorLastName}\n" +
-                        $"ISBN:\t {book.ISBN.ToString()}\n" +
-                        $"Publisher:\t {book.Publisher}\n" +
-                        $"Genre:\t {book.Genre}\n" +
-                        $"Category:\t {(_TypeEnum)book.Type}\n\n";
-                        chunk = blockSize;
-                    }
-                    else
-                    {
-                        chunk += blockSize;
-                        results += $"Title:\t {book.Title}\n" +
-                        $"Author:\t {book.AuthorFirstName}, {book.AuthorLastName}\n" +
-                        $"ISBN:\t {book.ISBN.ToString()}\n" +
-                        $"Publisher:\t {book.Publisher}\n" +
-                        $"Genre:\t {book.Genre}\n" +
-                        $"Category:\t {(_TypeEnum)book.Type}\n\n";
-                    }
-                }
-                Desktop.Workspaces["info"].FlushBuffer();
-                Desktop.Workspaces["cmd"].FlushBuffer();
-                Desktop.SendToWorkspace("info", results);
-                Desktop.DrawDesktop();
-            }
-            else
-            {
-                foreach (Book book in CommandBot.library.Catalogue.Values)
-                {
-                    byte count = 1;
-                    noMatch = false;
-
-                    foreach (var arg in query)
-                    {
-                        if (noMatch) break;
-                        switch (arg.Item1)
-                        {
-                            case "Title":
-                                if (book.Title != arg.Item2) noMatch = true;
-                                break;
-                            case "AFName":
-                                if (book.AuthorFirstName != arg.Item2) noMatch = true;
-                                break;
-                            case "ALName":
-                                if (book.AuthorLastName != arg.Item2) noMatch = true;
-                                break;
-                            case "ISBN":
-                                if (!book.ISBN.Equals(Book.ParseISBN(arg.Item2))) noMatch = true;
-                                break;
-                            case "Genre":
-                                if (!book.Genre.Equals(arg.Item2)) noMatch = true;
-                                break;
-                            case "Cat":
-                                if (!book.Type.Equals(arg.Item2)) noMatch = true;
-                                break;
-                            case "Publisher":
-                                if (book.Publisher != arg.Item2) noMatch = true;
-                                break;
-                        }
-                    }
-                    if (count == query.Count && !noMatch)
-                    {
-                        result = book;
-                        break;
-                    }
-                }
-                if (noMatch) Desktop.SendToWorkspace("cmd", "ERROR: Record not found.");
-                else
-                {
-                    Desktop.Workspaces["info"].FlushBuffer();
-                    Desktop.SendToWorkspace("info",
-                        $"Title:\t {result.Title}\n" +
-                        $"Author:\t {result.AuthorFirstName}, {result.AuthorLastName}\n" +
-                        $"ISBN:\t {result.ISBN.ToString()}\n" +
-                        $"Publisher:\t {result.Publisher}\n" +
-                        $"Genre:\t {result.Genre}\n" +
-                        $"Category:\t {(_TypeEnum)result.Type}\n");
-                }
-            }
-            return 0;
-        }
-
-     private List<(string, string)> ConstructQuery()
-        { 
             List<(string, string)> query = new List<(string, string)>();
 
             if (!String.IsNullOrEmpty(Title)) query.Add(("Title", Title));
             if (!String.IsNullOrEmpty(AFName)) query.Add(("AFName", AFName));
-            if (!String.IsNullOrEmpty(ALName)) query.Add(("ALNAME", ALName));
+            if (!String.IsNullOrEmpty(ALName)) query.Add(("ALName", ALName));
             if (!String.IsNullOrEmpty(ISBN)) query.Add(("ISBN", ISBN));
             if (!String.IsNullOrEmpty(Genre)) query.Add(("Genre", Genre));
             if (!String.IsNullOrEmpty(Cat)) query.Add(("Cat", Cat));
             if (!String.IsNullOrEmpty(Publisher)) query.Add(("Publisher", Publisher));
 
             return query;
+        }
+
+        public override int Run(string[] remaingArguments)
+        {
+            Desktop.DrawDesktop();
+            var query = ConstructQuery();
+
+            int count = 0;
+            bool noMatch = false;
+            Book result = new Book();
+
+            // No ISBN provided
+            if(String.IsNullOrEmpty(ISBN))
+            {
+                // No arguments provided, display all records
+                if (query.Count == 0)
+                {
+
+                    int blockSize = 7;
+                    int workspaceSize = Desktop.Workspaces["info"].WorkspaceHeight;
+                    int chunk = 0;
+                    string results = "";
+
+                    foreach (Book book in CommandBot.library.Catalogue.Values)
+                    {
+                        if (chunk + blockSize > workspaceSize)
+                        {
+                            Desktop.Workspaces["info"].FlushBuffer();
+                            Desktop.SendToWorkspace("info", results);
+                            Desktop.SendToWorkspace("cmd", "Press Any Key to Continu...");
+                            Desktop.DrawDesktop();
+                            Console.ReadKey(true);
+                            results = $"Title:\t {book.Title}\n" +
+                            $"Author:\t {book.AuthorFirstName}, {book.AuthorLastName}\n" +
+                            $"ISBN:\t {book.ISBN.ToString()}\n" +
+                            $"Publisher:\t {book.Publisher}\n" +
+                            $"Genre:\t {book.Genre}\n" +
+                            $"Category:\t {(_TypeEnum)book.Type}\n\n";
+                            chunk = blockSize;
+                            count++;
+                        }
+                        else
+                        {
+                            chunk += blockSize;
+                            results += $"Title:\t {book.Title}\n" +
+                            $"Author:\t {book.AuthorFirstName}, {book.AuthorLastName}\n" +
+                            $"ISBN:\t {book.ISBN.ToString()}\n" +
+                            $"Publisher:\t {book.Publisher}\n" +
+                            $"Genre:\t {book.Genre}\n" +
+                            $"Category:\t {(_TypeEnum)book.Type}\n\n";
+                            count++;
+                        }
+                    }
+                    Desktop.Workspaces["info"].FlushBuffer();
+                    Desktop.Workspaces["cmd"].FlushBuffer();
+                    Desktop.SendToWorkspace("cmd", $"Operation Complete. - {count} record(s) found");
+                    Desktop.SendToWorkspace("info", results);
+                    Desktop.DrawDesktop();
+                }
+                // Parse arguments
+                else
+                {
+                    string results = "";
+
+                    foreach (Book book in CommandBot.library.Catalogue.Values)
+                    {
+                        noMatch = false;
+                        byte argCount = 0;
+
+                        foreach (var arg in query)
+                        {
+                            if (noMatch) break;
+                            switch (arg.Item1)
+                            {
+                                case "Title":
+                                    if (book.Title != arg.Item2) noMatch = true;
+                                    break;
+                                case "AFName":
+                                    if (book.AuthorFirstName != arg.Item2) noMatch = true;
+                                    break;
+                                case "ALName":
+                                    if (book.AuthorLastName != arg.Item2) noMatch = true;
+                                    break;
+                                case "Genre":
+                                    if (!book.Genre.Equals(arg.Item2)) noMatch = true;
+                                    break;
+                                case "Cat":
+                                    if (!book.Type.Equals(arg.Item2)) noMatch = true;
+                                    break;
+                                case "Publisher":
+                                    if (book.Publisher != arg.Item2) noMatch = true;
+                                    break;
+                            }
+                            argCount++;
+                        }
+                        if (argCount == query.Count && !noMatch)
+                        {
+                            count++;
+                            results += $"Title:\t {book.Title}\n" +
+                                $"Author:\t {book.AuthorFirstName}, {book.AuthorLastName}\n" +
+                                $"ISBN:\t {book.ISBN.ToString()}\n" +
+                                $"Publisher:\t {book.Publisher}\n" +
+                                $"Genre:\t {result.Genre}\n" +
+                                $"Category:\t {(_TypeEnum)book.Type}\n\n";
+                        }
+                    }
+                    if (String.IsNullOrEmpty(results)) Desktop.SendToWorkspace("cmd", "ERROR: Record not found.");
+                    else
+                    {
+                        Desktop.Workspaces["cmd"].FlushBuffer();
+                        Desktop.Workspaces["info"].FlushBuffer();
+                        Desktop.SendToWorkspace("cmd", $"Operation Complete. - {count} record(s) found");
+                        Desktop.SendToWorkspace("info", results);
+                        Desktop.DrawDesktop();
+                    }
+                }
+            }
+            else
+            {
+                if (Book.ValidateISBN(ISBN))
+                {
+                    Desktop.Workspaces["cmd"].FlushBuffer();
+                    Desktop.Workspaces["info"].FlushBuffer();
+                    try
+                    {
+                        Desktop.SendToWorkspace("info", $"Title:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Title}\n" +
+                                    $"Author:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].AuthorFirstName}, {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].AuthorLastName}\n" +
+                                    $"ISBN:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].ISBN.ToString()}\n" +
+                                    $"Publisher:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Publisher}\n" +
+                                    $"Genre:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Genre}\n" +
+                                    $"Category:\t {(_TypeEnum)CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Type}\n\n");
+                        Desktop.SendToWorkspace("cmd", "Operation Complete. - 1 record found");
+                    }
+                    catch (Exception e)
+                    {
+                        Desktop.SendToWorkspace("cmd", $"ERROR: Operation Failed. - {e.Message}");
+                    }
+                }
+                else
+                {
+                    Desktop.SendToWorkspace("cmd", "ERROR: Invalid ISBN.");
+                    Desktop.DrawDesktop();
+                }
+            }
+            return 0;
         }
     }
 }
