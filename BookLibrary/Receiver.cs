@@ -111,12 +111,6 @@ namespace BookLibrary
             ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
         }
 
-        public void search(string[] args)
-        {
-            var commands = GetCommands();
-            ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
-        }
-
         public void modify(string[] args)
         {
             var commands = GetCommands();

@@ -66,12 +66,6 @@ namespace BookLibrary
         public override void Execute(string[] args, string id) => Receiver.delete(args);
     }
 
-    public class search : Command
-    {
-        public search(Receiver receiver) : base(receiver) { }
-        public override void Execute(string[] args, string id) => Receiver.search(args);
-    }
-
     public class menu : Command
     {
         public menu(Receiver receiver) : base(receiver) { }
@@ -111,7 +105,7 @@ namespace BookLibrary
 
         // List of valid commands to be created dynamically
         public static List<string> commandOptions =
-            new List<string> { "quit", "add", "help", "delete", "search", "modify", "menu", "list", "fetch" };
+            new List<string> { "quit", "add", "help", "delete", "modify", "menu", "list", "fetch" };
 
         // Hold the valid command objects in a Dictionary
         public static Dictionary<string, Command> validCommands =

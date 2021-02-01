@@ -214,41 +214,6 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
         }
     }
 
-    public class SearchCommand : ConsoleCommand
-    {
-        public string Title { get; set; }
-        public string AFName { get; set; }
-        public string ALName { get; set; }
-        public string ISBN { get; set; }
-        public string Genre { get; set; }
-        public string Cat { get; set; }
-        public string Publisher { get; set; }
-
-        public SearchCommand()
-        {
-            IsCommand("search", "Search for a record.");
-            HasAlias("search");
-            HasLongDescription(@"
-Search for a record.
-Expected usage at the CLI: search <options>");
-            HasOption("t|title=", "Title.", t => Title = t);
-            HasOption("f|first=", "Author's first name.", f => AFName = f);
-            HasOption("l|last=", "Author's last name.", l => ALName = l);
-            HasOption("i|isbn=", "ISBN.", i => ISBN = i);
-            HasOption("g|genre=", "Literary genre.", g => Genre = g);
-            HasOption("T|type=", "Literary type.", T => Cat = T);
-            HasOption("p|publisher=", "Publisher name.", p => Publisher = p);
-
-        }
-
-        public override int Run(string[] remainingArguments)
-        {
-            //TODO: Add functionality
-            Desktop.SendToWorkspace("info", " Search command entered");
-            return 0;
-        }
-    }
-
     public class ModifyCommand : ConsoleCommand
     {
         public string Title { get; set; }
