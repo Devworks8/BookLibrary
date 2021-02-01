@@ -26,7 +26,7 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-using System;
+
 namespace BookLibrary
 {
     // ISBN struct, seperating it's key components to ease parsing and validation.
@@ -51,7 +51,9 @@ namespace BookLibrary
     // Literary Genres
     public enum _GenreEnum
     {
+        BiographyAutobiography,
         Drama,
+        Essay,
         Fable,
         Fantasy,
         Fiction,
@@ -62,16 +64,14 @@ namespace BookLibrary
         Legend,
         Mystery,
         Mythology,
+        NarrativeNonfiction,
+        Nonfiction,
         Poetry,
         RealisticFiction,
         ScienceFiction,
         ShortStory,
+        Speech,
         TallTale,
-        BiographyAutobiography,
-        Essay,
-        NarrativeNonfiction,
-        Nonfiction,
-        Speech
     }
 
     // Literary Categories

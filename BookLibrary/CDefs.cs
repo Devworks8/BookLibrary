@@ -26,7 +26,9 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
+using System.Linq;
 using ManyConsole;
 
 namespace BookLibrary
@@ -51,11 +53,64 @@ namespace BookLibrary
         public QuitCommand()
         {
             IsCommand("quit", "Quit the program.");
+            HasAlias("quit");
+
         }
 
         public override int Run(string[] remainingArguments)
         {
             Environment.Exit(0);
+            return 0;
+        }
+    }
+
+    public class ListCommand : ConsoleCommand
+    {
+        public string arg;
+
+        public ListCommand()
+        {
+            IsCommand("list", "List Genres or Catagories.");
+            HasAlias("list");
+            HasLongDescription(@"
+List the genres or catagories
+Expected usage at the CLI: list <options>.");
+            HasRequiredOption("o=", "[genre|cat]", c => arg = c);
+        }
+
+        public override int Run(string[] remainingArguments)
+        {
+            if (!string.IsNullOrEmpty(arg))
+            {
+                if (arg.ToLower() == "genre")
+                {
+                    var values = Enum.GetValues(typeof(_GenreEnum)).Cast<_GenreEnum>();
+
+                    Desktop.Workspaces["menu"].FlushBuffer(); 
+                    Desktop.SendToWorkspace("menu", "Code \t<-> \tDescription\n");
+
+                    byte count = 1;
+                    foreach (var value in values)
+                    {
+                        
+                        Desktop.SendToWorkspace("menu", $"{count} \t<-> \t" + value.ToString()) ;
+                        count++;
+                    }
+                }
+                if (arg.ToLower() == "cat")
+                {
+                    var values = Enum.GetValues(typeof(_TypeEnum)).Cast<_TypeEnum>();
+                    Desktop.Workspaces["menu"].FlushBuffer();
+                    Desktop.SendToWorkspace("menu", "Code \t<-> \tDescription\n");
+
+                    byte count = 1;
+                    foreach (var value in values)
+                    {
+                        Desktop.SendToWorkspace("menu", $"{count} \t<-> \t" + value.ToString());
+                        count++;
+                    }
+                }
+            }
             return 0;
         }
     }

@@ -48,6 +48,7 @@
     <Compile Include="Invoker.cs" />
     <Compile Include="Receiver.cs" />
     <Compile Include="CDefs.cs" />
+    <Compile Include="Library.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

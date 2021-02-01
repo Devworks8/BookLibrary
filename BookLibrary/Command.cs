@@ -84,6 +84,12 @@ namespace BookLibrary
         public override void Execute(string[] args, string id) => Receiver.modify(args);
     }
 
+    public class list : Command
+    {
+        public list(Receiver receiver) : base(receiver) { }
+        public override void Execute(string[] args, string id) => Receiver.list(args);
+    }
+
     public static class CommandBot
     {
         static Receiver r = new Receiver();
@@ -98,7 +104,7 @@ namespace BookLibrary
 
         // List of valid commands to be created dynamically
         public static List<string> commandOptions =
-            new List<string> { "quit", "add", "help", "delete", "search", "modify", "menu" };
+            new List<string> { "quit", "add", "help", "delete", "search", "modify", "menu", "list" };
 
         // Hold the valid command objects in a Dictionary
         public static Dictionary<string, Command> validCommands =
@@ -161,8 +167,8 @@ namespace BookLibrary
             Workspace title = new Workspace(new Point(0, 0), 100, 2);
             Workspace description = new Workspace(new Point(0, title.WorkspaceHeight + 1), 100, 15);
             Workspace headers = new Workspace(new Point(0, description.WorkspaceHeight + 1), 100, 2);
-            Workspace menu = new Workspace(new Point(0, description.WorkspaceHeight + 5), 50, 40);
-            Workspace info = new Workspace(new Point(menu.WorkspaceWidth + 1, menu.WorkspaceOrigin.Y), 50, 40, 2);
+            Workspace menu = new Workspace(new Point(0, description.WorkspaceHeight + 5), 50, 50);
+            Workspace info = new Workspace(new Point(menu.WorkspaceWidth + 1, menu.WorkspaceOrigin.Y), 50, 50, 2);
             Workspace cmd = new Workspace(new Point(0, info.WorkspaceOrigin.Y + info.WorkspaceHeight + 3), 100, 3, 2);
 
             // Add workspaces to desktop
@@ -194,6 +200,7 @@ namespace BookLibrary
                 $"delete\t\t Delete a record.\n" +
                 $"modify\t\t Modify a record.\n" +
                 $"search\t\t Search for a record.\n" +
+                $"list\t\t List genre or categories\n" +
                 $"help\t\t Extended help.\n" +
                 $"menu\t\t Show this menu.\n" +
                 $"quit\t\t Quit the program.\n\n";

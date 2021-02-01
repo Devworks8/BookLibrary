@@ -134,5 +134,11 @@ namespace BookLibrary
             var commands = GetCommands();
             ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
         }
+
+        public void list(string[] args)
+        {
+            var commands = GetCommands();
+            ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
+        }
     }
 }
