@@ -95,6 +95,7 @@ namespace BookLibrary
         static Receiver r = new Receiver();
         static Invoker invoker = new Invoker();
         static Desktop desktop = new Desktop();
+        static public Library library = new Library();
 
         // Static Workspace text
         static public string strTitle;
@@ -167,8 +168,8 @@ namespace BookLibrary
             Workspace title = new Workspace(new Point(0, 0), 100, 2);
             Workspace description = new Workspace(new Point(0, title.WorkspaceHeight + 1), 100, 15);
             Workspace headers = new Workspace(new Point(0, description.WorkspaceHeight + 1), 100, 2);
-            Workspace menu = new Workspace(new Point(0, description.WorkspaceHeight + 5), 50, 50);
-            Workspace info = new Workspace(new Point(menu.WorkspaceWidth + 1, menu.WorkspaceOrigin.Y), 50, 50, 2);
+            Workspace menu = new Workspace(new Point(0, description.WorkspaceHeight + 5), 50, 60);
+            Workspace info = new Workspace(new Point(menu.WorkspaceWidth + 1, menu.WorkspaceOrigin.Y), 50, 60, 2);
             Workspace cmd = new Workspace(new Point(0, info.WorkspaceOrigin.Y + info.WorkspaceHeight + 3), 100, 3, 2);
 
             // Add workspaces to desktop

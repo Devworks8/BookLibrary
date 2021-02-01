@@ -149,7 +149,15 @@ Expected usage at the CLI: list <options>.");
             HasAlias("add");
             HasLongDescription(@"
 Add a new record to the database.
-Expected usage at the CLI: add <options>");
+Expected usage at the CLI: add <options>
+
+The ISBN is to follow the following format:
+xxx-xxxxx-xxxxxxx-xxxxxx-x
+      |      |      |
+      |      |      |
+      |      |      --> Between 1-6 digits long
+      |      --> Between 1-7 digits long
+      --> Between 1-5 digits long");
             HasOption("t|title=", "Title.", t => Title = t);
             HasOption("f|first=", "Author's first name.", f => AFName = f);
             HasOption("l|last=", "Author's last name.", l => ALName = l);
@@ -161,8 +169,8 @@ Expected usage at the CLI: add <options>");
 
         public override int Run(string[] remainingArguments)
         {
-            //TODO: Add functionality
-            Desktop.SendToWorkspace("info", "Add command entered");
+            //TODO: Add more ISBN Validations
+            Desktop.SendToWorkspace("cmd", CommandBot.library.NewBook(Title, AFName, ALName, Book.ParseISBN(ISBN), Publisher, (_GenreEnum)Convert.ToInt16(Genre), (_TypeEnum)Convert.ToInt16(Cat)));
             return 0;
         }
     }

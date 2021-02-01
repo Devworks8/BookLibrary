@@ -27,25 +27,27 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+
 namespace BookLibrary
 {
     // ISBN struct, seperating it's key components to ease parsing and validation.
     public struct _ISBNStruct
     {
-        public int Prefix { get; }
-        public int Group { get; }
-        public int Registrant { get; }
-        public int Publication { get; }
-        public int Check { get; }
+        public int Prefix { get; set; }
+        public int Group { get; set; }
+        public int Registrant { get; set; }
+        public int Publication { get; set; }
+        public int Check { get; set; }
 
-        public _ISBNStruct(int prefix, int group, int registrant, int publication, int check)
-        {
-            this.Prefix = prefix;
-            this.Group = group;
-            this.Registrant = registrant;
-            this.Publication = publication;
-            this.Check = check;
-        }
+        //public _ISBNStruct(int prefix, int group, int registrant, int publication, int check)
+        //{
+        //    this.Prefix = prefix;
+        //    this.Group = group;
+        //    this.Registrant = registrant;
+        //    this.Publication = publication;
+        //    this.Check = check;
+        //}
     }
 
     // Literary Genres
@@ -153,6 +155,42 @@ namespace BookLibrary
             Publisher = publisher;
             Genre = genre;
             Type = type;
+        }
+
+        static public _ISBNStruct ParseISBN(string isbn)
+        {
+            _ISBNStruct parsedISBN = new _ISBNStruct();
+            string[] Parts = isbn.Split('-');
+
+            int counter = 1;
+            foreach(string part in Parts)
+            {
+                switch (counter)
+                {
+                    case 1:
+                        if (part.Length != 3) parsedISBN.Prefix = 000;
+                        else parsedISBN.Prefix = Convert.ToInt16(part);
+                        break;
+                    case 2:
+                        if (part.Length < 1 || part.Length > 5) parsedISBN.Group = 00000;
+                        else parsedISBN.Group = Convert.ToInt16(part);
+                        break;
+                    case 3:
+                        if (part.Length < 1 || part.Length > 7) parsedISBN.Registrant = 0000000;
+                        else parsedISBN.Registrant = Convert.ToInt16(part);
+                        break;
+                    case 4:
+                        if (part.Length < 1 || part.Length > 6) parsedISBN.Publication = 000000;
+                        else parsedISBN.Publication = Convert.ToInt16(part);
+                        break;
+                    case 5:
+                        if (part.Length != 1) parsedISBN.Check = 0;
+                        else parsedISBN.Check = Convert.ToInt16(part);
+                        break;
+                }
+            }
+
+            return parsedISBN;
         }
     }
 }
