@@ -108,7 +108,10 @@ namespace BookLibrary
         {
             if (Workspaces.ContainsKey(id))
             {
-                Workspaces[id].UpdateBuffer(msg);
+                foreach (var line in msg.Split('\n'))
+                {
+                    Workspaces[id].UpdateBuffer(line);
+                }
             }
         }
 

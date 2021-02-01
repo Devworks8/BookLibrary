@@ -48,9 +48,10 @@ namespace BookLibrary
                 Catalogue.Add(isbn, new Book(title, afname, alname, isbn, publisher, genre, type));
                 return "Operation successful.";
             }
-            catch
+            catch (Exception e)
             {
-                return "ERROR: Failed to create.";
+                //TODO: Give option to overwrite existing record
+                return $"ERROR: Failed to create. - {e.Message}";
             }
         }
     }

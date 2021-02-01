@@ -40,14 +40,10 @@ namespace BookLibrary
         public int Publication { get; set; }
         public int Check { get; set; }
 
-        //public _ISBNStruct(int prefix, int group, int registrant, int publication, int check)
-        //{
-        //    this.Prefix = prefix;
-        //    this.Group = group;
-        //    this.Registrant = registrant;
-        //    this.Publication = publication;
-        //    this.Check = check;
-        //}
+       public override string ToString()
+        {
+            return $"{Prefix}-{Group}-{Registrant}-{Publication}-{Check}";
+        }
     }
 
     // Literary Genres
@@ -157,6 +153,36 @@ namespace BookLibrary
             Type = type;
         }
 
+        static public bool ValidateISBN(string isbn)
+        {
+            string[] Parts = isbn.Split('-');
+
+            int counter = 1;
+            foreach (string part in Parts)
+            {
+                switch (counter)
+                {
+                    case 1:
+                        if (part.Length != 3) return false;
+                        break;
+                    case 2:
+                        if (part.Length < 1 || part.Length > 5) return false;
+                        break;
+                    case 3:
+                        if (part.Length < 1 || part.Length > 7) return false;
+                        break;
+                    case 4:
+                        if (part.Length < 1 || part.Length > 6) return false;
+                        break;
+                    case 5:
+                        if (part.Length != 1) return false;
+                        break;
+                }
+                counter++;
+            }
+            return true;
+        }
+
         static public _ISBNStruct ParseISBN(string isbn)
         {
             _ISBNStruct parsedISBN = new _ISBNStruct();
@@ -168,26 +194,22 @@ namespace BookLibrary
                 switch (counter)
                 {
                     case 1:
-                        if (part.Length != 3) parsedISBN.Prefix = 000;
-                        else parsedISBN.Prefix = Convert.ToInt16(part);
+                        parsedISBN.Prefix = Convert.ToInt32(part);
                         break;
                     case 2:
-                        if (part.Length < 1 || part.Length > 5) parsedISBN.Group = 00000;
-                        else parsedISBN.Group = Convert.ToInt16(part);
+                        parsedISBN.Group = Convert.ToInt32(part);
                         break;
                     case 3:
-                        if (part.Length < 1 || part.Length > 7) parsedISBN.Registrant = 0000000;
-                        else parsedISBN.Registrant = Convert.ToInt16(part);
+                        parsedISBN.Registrant = Convert.ToInt32(part);
                         break;
                     case 4:
-                        if (part.Length < 1 || part.Length > 6) parsedISBN.Publication = 000000;
-                        else parsedISBN.Publication = Convert.ToInt16(part);
+                        parsedISBN.Publication = Convert.ToInt32(part);
                         break;
                     case 5:
-                        if (part.Length != 1) parsedISBN.Check = 0;
-                        else parsedISBN.Check = Convert.ToInt16(part);
+                        parsedISBN.Check = Convert.ToInt32(part);
                         break;
                 }
+                counter++;
             }
 
             return parsedISBN;

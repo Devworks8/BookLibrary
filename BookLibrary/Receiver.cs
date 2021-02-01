@@ -52,20 +52,8 @@ namespace BookLibrary
 
         public void menu(string[] args)
         {
-            //// Redirect standard output to stringwriter object
-            //var sw = new StringWriter();
-            //Console.SetOut(sw);
-            //Console.SetError(sw);
-
             var commands = GetCommands();
             ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
-            //desktop.Workspaces[id].FlushBuffer();
-            //desktop.SendToWorkspace(id, sw.ToString());
-
-            //// Close previous output stream and redirect output to standard output.
-            //var standardOutput = new StreamWriter(Console.OpenStandardOutput());
-            //standardOutput.AutoFlush = true;
-            //Console.SetOut(standardOutput);
         }
 
         public void help(string[] args, string id)
@@ -136,6 +124,12 @@ namespace BookLibrary
         }
 
         public void list(string[] args)
+        {
+            var commands = GetCommands();
+            ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);
+        }
+
+        public void fetch(string[] args)
         {
             var commands = GetCommands();
             ConsoleCommandDispatcher.DispatchCommand(commands, args, Console.Out);

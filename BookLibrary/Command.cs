@@ -90,6 +90,12 @@ namespace BookLibrary
         public override void Execute(string[] args, string id) => Receiver.list(args);
     }
 
+    public class fetch : Command
+    {
+        public fetch(Receiver receiver) : base(receiver) { }
+        public override void Execute(string[] args, string id) => Receiver.fetch(args);
+    }
+
     public static class CommandBot
     {
         static Receiver r = new Receiver();
@@ -105,7 +111,7 @@ namespace BookLibrary
 
         // List of valid commands to be created dynamically
         public static List<string> commandOptions =
-            new List<string> { "quit", "add", "help", "delete", "search", "modify", "menu", "list" };
+            new List<string> { "quit", "add", "help", "delete", "search", "modify", "menu", "list", "fetch" };
 
         // Hold the valid command objects in a Dictionary
         public static Dictionary<string, Command> validCommands =
@@ -158,7 +164,7 @@ namespace BookLibrary
             }
 
             // CLear Command Window
-            Desktop.Workspaces["cmd"].FlushBuffer();
+            //Desktop.Workspaces["cmd"].FlushBuffer();
 
         }
 
@@ -167,10 +173,10 @@ namespace BookLibrary
             // Create individual workspaces
             Workspace title = new Workspace(new Point(0, 0), 100, 2);
             Workspace description = new Workspace(new Point(0, title.WorkspaceHeight + 1), 100, 15);
-            Workspace headers = new Workspace(new Point(0, description.WorkspaceHeight + 1), 100, 2);
+            Workspace headers = new Workspace(new Point(0, description.WorkspaceHeight + 1), 100, 6);
             Workspace menu = new Workspace(new Point(0, description.WorkspaceHeight + 5), 50, 60);
             Workspace info = new Workspace(new Point(menu.WorkspaceWidth + 1, menu.WorkspaceOrigin.Y), 50, 60, 2);
-            Workspace cmd = new Workspace(new Point(0, info.WorkspaceOrigin.Y + info.WorkspaceHeight + 3), 100, 3, 2);
+            Workspace cmd = new Workspace(new Point(0, info.WorkspaceOrigin.Y + info.WorkspaceHeight + 3), 100, 6);
 
             // Add workspaces to desktop
             Desktop.AddWorkspace("title", title);
