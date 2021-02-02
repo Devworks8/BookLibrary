@@ -335,10 +335,10 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
                                     if (book.AuthorLastName != arg.Item2) noMatch = true;
                                     break;
                                 case "Genre":
-                                    if (!book.Genre.Equals(arg.Item2)) noMatch = true;
+                                    if ((int)book.Genre != Convert.ToInt16(arg.Item2)) noMatch = true;
                                     break;
                                 case "Cat":
-                                    if (!book.Type.Equals(arg.Item2)) noMatch = true;
+                                    if ((int)book.Type != Convert.ToInt16(arg.Item2)) noMatch = true;
                                     break;
                                 case "Publisher":
                                     if (book.Publisher != arg.Item2) noMatch = true;
@@ -695,10 +695,10 @@ Expected usage at the CLI: fetch <options>");
                                     if (book.AuthorLastName != arg.Item2) noMatch = true;
                                     break;
                                 case "Genre":
-                                    if (!book.Genre.Equals(arg.Item2)) noMatch = true;
+                                    if ((int)book.Genre != Convert.ToInt16(arg.Item2)) noMatch = true;
                                     break;
                                 case "Cat":
-                                    if (!book.Type.Equals(arg.Item2)) noMatch = true;
+                                    if ((int)book.Type != Convert.ToInt16(arg.Item2)) noMatch = true;
                                     break;
                                 case "Publisher":
                                     if (book.Publisher != arg.Item2) noMatch = true;
