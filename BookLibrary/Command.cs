@@ -204,7 +204,7 @@ namespace BookLibrary
                 $"add\t\t Add a record.\n" +
                 $"delete\t\t Delete a record.\n" +
                 $"modify\t\t Modify a record.\n" +
-                $"search\t\t Search for a record.\n" +
+                $"fetch\t\t Search for and display a record.\n" +
                 $"list\t\t List genre or categories\n" +
                 $"help\t\t Extended help.\n" +
                 $"menu\t\t Show this menu.\n" +
