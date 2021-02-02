@@ -191,8 +191,8 @@ namespace BookLibrary
                 "It also allows you to search using different criterias.\n";
 
             strHeaders = new String('-', Desktop.Workspaces["headers"].WorkspaceWidth) + "\n" +
-                Display.CenterAligned("Menu", Desktop.Workspaces["menu"].WorkspaceWidth) + "|" +
-                Display.CenterAligned("Information", Desktop.Workspaces["info"].WorkspaceWidth) + "\n" +
+                Display.CenterAligned("Information", Desktop.Workspaces["menu"].WorkspaceWidth) + "|" +
+                Display.CenterAligned("Results", Desktop.Workspaces["info"].WorkspaceWidth) + "\n" +
                 new String('-', Desktop.Workspaces["headers"].WorkspaceWidth);
 
             strMenu =

@@ -172,9 +172,35 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
             Desktop.DrawDesktop();
             Console.Write("Publisher: > ");
             Publisher = Console.ReadLine();
+
+            var genres = Enum.GetValues(typeof(_GenreEnum)).Cast<_GenreEnum>();
+
+            Desktop.Workspaces["menu"].FlushBuffer();
+            Desktop.SendToWorkspace("menu", "Code \t<-> \tDescription\n");
+
+            byte count = 0;
+            foreach (var value in genres)
+            {
+
+                Desktop.SendToWorkspace("menu", $"{count} \t<-> \t" + value.ToString());
+                count++;
+            }
+
             Desktop.DrawDesktop();
             Console.Write("Genre: > ");
             Genre = Console.ReadLine();
+
+            var types = Enum.GetValues(typeof(_TypeEnum)).Cast<_TypeEnum>();
+            Desktop.Workspaces["menu"].FlushBuffer();
+            Desktop.SendToWorkspace("menu", "Code \t<-> \tDescription\n");
+
+            count = 0;
+            foreach (var value in types)
+            {
+                Desktop.SendToWorkspace("menu", $"{count} \t<-> \t" + value.ToString());
+                count++;
+            }
+
             Desktop.DrawDesktop();
             Console.Write("Type: > ");
             Cat = Console.ReadLine();
