@@ -75,8 +75,10 @@ namespace BookLibrary
     // Literary Categories
     public enum _TypeEnum
     {
-        Fiction,
-        NonFiction
+        Audio,
+        Hardcover,
+        Magazine,
+        Paperback 
     }
 
     public class Book
