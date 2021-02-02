@@ -373,7 +373,7 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
             HasAlias("modify");
             HasLongDescription(@"
 Modify a record.
-Expected usage at the CLI: modify <options>");
+The ISBN is required.");
             HasOption("t|title=", "Title.", t => Title = t);
             HasOption("f|first=", "Author's first name.", f => AFName = f);
             HasOption("l|last=", "Author's last name.", l => ALName = l);
@@ -383,10 +383,113 @@ Expected usage at the CLI: modify <options>");
             HasOption("p|publisher=", "Publisher name.", p => Publisher = p);
         }
 
+        private List<(string, string)> ConstructQuery()
+        {
+            List<(string, string)> query = new List<(string, string)>();
+
+            if (!String.IsNullOrEmpty(Title)) query.Add(("Title", Title));
+            if (!String.IsNullOrEmpty(AFName)) query.Add(("AFName", AFName));
+            if (!String.IsNullOrEmpty(ALName)) query.Add(("ALName", ALName));
+            if (!String.IsNullOrEmpty(ISBN)) query.Add(("ISBN", ISBN));
+            if (!String.IsNullOrEmpty(Genre)) query.Add(("Genre", Genre));
+            if (!String.IsNullOrEmpty(Cat)) query.Add(("Cat", Cat));
+            if (!String.IsNullOrEmpty(Publisher)) query.Add(("Publisher", Publisher));
+
+            return query;
+        }
+
         public override int Run(string[] remainingArguments)
         {
-            //TODO: Add functionality
-            Desktop.SendToWorkspace("info", " Modify command entered");
+            var query = ConstructQuery();
+
+            Desktop.Workspaces["cmd"].FlushBuffer();
+
+            if (String.IsNullOrEmpty(ISBN))
+            {
+                Desktop.SendToWorkspace("cmd", "ERROR: ISBN required.");
+                Desktop.DrawDesktop();
+            }
+            else
+            {
+                try
+                {
+                    string original;
+                    string modified;
+
+                    if(Book.ValidateISBN(ISBN))
+                    {
+                        original = $"Original\n\n" +
+                            $"Title:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Title}\n" +
+                            $"Author:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].AuthorFirstName}, {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].AuthorLastName}\n" +
+                            $"ISBN:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].ISBN.ToString()}\n" +
+                            $"Publisher:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Publisher}\n" +
+                            $"Genre:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Genre}\n" +
+                            $"Category:\t {(_TypeEnum)CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Type}\n\n";
+
+                        modified = $"Modified\n\n";
+                        modified += String.IsNullOrEmpty(Title) ? $"Title:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Title}\n" : $"Title:\t {Title}\n";
+                        modified += String.IsNullOrEmpty(AFName) ? $"Author:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].AuthorFirstName}, " : $"Author:\t {AFName}, ";
+                        modified += String.IsNullOrEmpty(ALName) ? $"{CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].AuthorLastName}" : $"{ALName}\n";
+                        modified += String.IsNullOrEmpty(ISBN) ? $"ISBN:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].ISBN.ToString()}\n" : $"ISBN:\t {ISBN}\n";
+                        modified += String.IsNullOrEmpty(Publisher) ? $"Publisher:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Publisher}\n" : $"Publisher:\t {Publisher}\n";
+                        modified += String.IsNullOrEmpty(Title) ? $"Genre:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Genre}\n" : $"Genre:\t {Genre}\n";
+                        modified += String.IsNullOrEmpty(Title) ? $"Category:\t {(_TypeEnum)CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Type}\n\n" : $"Category:\t {Cat}\n\n";
+
+                        Desktop.Workspaces["info"].FlushBuffer();
+                        Desktop.SendToWorkspace("info", original + modified);
+
+                        // Get user input
+                        Desktop.DrawDesktop();
+                        Console.Write($"Proceed with modification [y|N]: > ");
+                        string answer = Console.ReadLine();
+                        if (answer.ToLower() == "y")
+                        {
+                            foreach (var arg in query)
+                            {
+                                switch (arg.Item1)
+                                {
+                                    case "Title":
+                                        CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Title = Title;
+                                        break;
+                                    case "AFName":
+                                        CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].AuthorFirstName = AFName;
+                                        break;
+                                    case "ALName":
+                                        CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].AuthorLastName = ALName;
+                                        break;
+                                    case "Genre":
+                                        CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Genre = (_GenreEnum)Convert.ToInt16(Genre);
+                                        break;
+                                    case "Cat":
+                                        CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Type = (_TypeEnum)Convert.ToInt16(Cat);
+                                        break;
+                                    case "Publisher":
+                                        CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Publisher = Publisher;
+                                        break;
+                                }
+                            }
+
+                            Desktop.SendToWorkspace("cmd", "Operation Complete.");
+                            Desktop.DrawDesktop();
+                        }
+                        else
+                        {
+                            Desktop.SendToWorkspace("cmd", "Operation Aborted.");
+                            Desktop.DrawDesktop();
+                        }
+                    }
+                    else
+                    {
+                        Desktop.SendToWorkspace("cmd", "ERROR: Invalid ISBN.");
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Desktop.SendToWorkspace("cmd", $"ERROR: Operation Failed. - {e.Message}");
+                    Desktop.DrawDesktop();
+                }
+            }
             return 0;
         }
     }
