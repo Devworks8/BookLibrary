@@ -196,6 +196,7 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
         public string Genre { get; set; }
         public string Cat { get; set; }
         public string Publisher { get; set; }
+        public bool All { get; set; }
 
         public DeleteCommand()
         {
@@ -209,7 +210,7 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
             HasOption("g|genre=", "Literary genre.", g => Genre = g);
             HasOption("T|type=", "Literary type.", T => Cat = T);
             HasOption("p|publisher=", "Publisher name.", p => Publisher = p);
-            HasAdditionalArguments(1, "ALL");
+            HasOption("A|ALL", "Delete all records", A => All = true);
         }
 
         private List<(string, string)> ConstructQuery()
@@ -240,24 +241,21 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
             if (String.IsNullOrEmpty(ISBN))
             {
                 // No arguments provided, display all records
-                if (!string.IsNullOrEmpty(remainingArguments[0]))
+                if (All)
                 {
-                    if (remainingArguments[0] == "ALL")
+                    Desktop.Workspaces["cmd"].FlushBuffer();
+                    // Get user input
+                    Desktop.DrawDesktop();
+                    int total = CommandBot.library.Catalogue.Count;
+                    Console.Write($"{total} Record(s) will be deleted. Proceed [y|N]: > ");
+                    string answer = Console.ReadLine();
+                    if (answer.ToLower() == "y")
                     {
-                        Desktop.Workspaces["cmd"].FlushBuffer();
-                        // Get user input
-                        Desktop.DrawDesktop();
-                        int total = CommandBot.library.Catalogue.Count;
-                        Console.Write($"{total} Record(s) will be deleted. Proceed [y|N]: > ");
-                        string answer = Console.ReadLine();
-                        if (answer.ToLower() == "y")
-                        {
-                            CommandBot.library.Catalogue.Clear();
-                            Desktop.SendToWorkspace("cmd", $"Operation Complete. - {total} records deleted");
-                        }
-                        else Desktop.SendToWorkspace("cmd", "Operation Aborted.");
+                        CommandBot.library.Catalogue.Clear();
+                        Desktop.SendToWorkspace("cmd", $"Operation Complete. - {total} records deleted");
                     }
-
+                    else Desktop.SendToWorkspace("cmd", "Operation Aborted.");
+                    
                     Desktop.DrawDesktop();
                 }
                 // Parse arguments
@@ -300,7 +298,6 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
                         {
                             count++;
                             results.Add(book.ISBN);
-                                CommandBot.library.Catalogue.Remove(book.ISBN);
                         }
                     }
                     if (results.Count == 0) Desktop.SendToWorkspace("cmd", "ERROR: Record(s) not found.");
