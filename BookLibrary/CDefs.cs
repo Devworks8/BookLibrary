@@ -201,7 +201,15 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
         {
             IsCommand("delete", "Delete a record.");
             HasAlias("delete");
-            HasLongDescription(@"Delete a record to the database.");
+            HasLongDescription(@"Delete a record from the database.");
+            HasOption("t|title=", "Title.", t => Title = t);
+            HasOption("f|first=", "Author's first name.", f => AFName = f);
+            HasOption("l|last=", "Author's last name.", l => ALName = l);
+            HasOption("i|isbn=", "ISBN.", i => ISBN = i);
+            HasOption("g|genre=", "Literary genre.", g => Genre = g);
+            HasOption("T|type=", "Literary type.", T => Cat = T);
+            HasOption("p|publisher=", "Publisher name.", p => Publisher = p);
+            HasAdditionalArguments(1, "ALL");
         }
 
         private List<(string, string)> ConstructQuery()
@@ -210,7 +218,7 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
 
             if (!String.IsNullOrEmpty(Title)) query.Add(("Title", Title));
             if (!String.IsNullOrEmpty(AFName)) query.Add(("AFName", AFName));
-            if (!String.IsNullOrEmpty(ALName)) query.Add(("ALNAME", ALName));
+            if (!String.IsNullOrEmpty(ALName)) query.Add(("ALName", ALName));
             if (!String.IsNullOrEmpty(ISBN)) query.Add(("ISBN", ISBN));
             if (!String.IsNullOrEmpty(Genre)) query.Add(("Genre", Genre));
             if (!String.IsNullOrEmpty(Cat)) query.Add(("Cat", Cat));
@@ -224,60 +232,129 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
             Desktop.DrawDesktop();
             var query = ConstructQuery();
 
+            int count = 0;
             bool noMatch = false;
-            int totalDeleted = 0;
             Book result = new Book();
 
-            foreach (Book book in CommandBot.library.Catalogue.Values)
+            // No ISBN provided
+            if (String.IsNullOrEmpty(ISBN))
             {
-                byte count = 1;
-                noMatch = false;
-
-                foreach (var arg in query)
+                // No arguments provided, display all records
+                if (!string.IsNullOrEmpty(remainingArguments[0]))
                 {
-                    if (noMatch) break;
-                    switch (arg.Item1)
+                    if (remainingArguments[0] == "ALL")
                     {
-                        case "Title":
-                            if (book.Title != arg.Item2) noMatch = true;
-                            break;
-                        case "AFName":
-                            if (book.AuthorFirstName != arg.Item2) noMatch = true;
-                            break;
-                        case "ALName":
-                            if (book.AuthorLastName != arg.Item2) noMatch = true;
-                            break;
-                        case "ISBN":
-                            if (!book.ISBN.Equals(Book.ParseISBN(arg.Item2))) noMatch = true;
-                            break;
-                        case "Genre":
-                            if (!book.Genre.Equals(arg.Item2)) noMatch = true;
-                            break;
-                        case "Cat":
-                            if (!book.Type.Equals(arg.Item2)) noMatch = true;
-                            break;
-                        case "Publisher":
-                            if (book.Publisher != arg.Item2) noMatch = true;
-                            break;
+                        Desktop.Workspaces["cmd"].FlushBuffer();
+                        // Get user input
+                        Desktop.DrawDesktop();
+                        int total = CommandBot.library.Catalogue.Count;
+                        Console.Write($"{total} Record(s) will be deleted. Proceed [y|N]: > ");
+                        string answer = Console.ReadLine();
+                        if (answer.ToLower() == "y")
+                        {
+                            CommandBot.library.Catalogue.Clear();
+                            Desktop.SendToWorkspace("cmd", $"Operation Complete. - {total} records deleted");
+                        }
+                        else Desktop.SendToWorkspace("cmd", "Operation Aborted.");
+                    }
+
+                    Desktop.DrawDesktop();
+                }
+                // Parse arguments
+                else
+                {
+                    List<_ISBNStruct> results = new List<_ISBNStruct>();
+
+                    foreach (Book book in CommandBot.library.Catalogue.Values)
+                    {
+                        noMatch = false;
+                        byte argCount = 0;
+
+                        foreach (var arg in query)
+                        {
+                            if (noMatch) break;
+                            switch (arg.Item1)
+                            {
+                                case "Title":
+                                    if (book.Title != arg.Item2) noMatch = true;
+                                    break;
+                                case "AFName":
+                                    if (book.AuthorFirstName != arg.Item2) noMatch = true;
+                                    break;
+                                case "ALName":
+                                    if (book.AuthorLastName != arg.Item2) noMatch = true;
+                                    break;
+                                case "Genre":
+                                    if (!book.Genre.Equals(arg.Item2)) noMatch = true;
+                                    break;
+                                case "Cat":
+                                    if (!book.Type.Equals(arg.Item2)) noMatch = true;
+                                    break;
+                                case "Publisher":
+                                    if (book.Publisher != arg.Item2) noMatch = true;
+                                    break;
+                            }
+                            argCount++;
+                        }
+                        if (argCount == query.Count && !noMatch)
+                        {
+                            count++;
+                            results.Add(book.ISBN);
+                                CommandBot.library.Catalogue.Remove(book.ISBN);
+                        }
+                    }
+                    if (results.Count == 0) Desktop.SendToWorkspace("cmd", "ERROR: Record(s) not found.");
+                    else
+                    {
+                        Desktop.Workspaces["cmd"].FlushBuffer();
+                        // Get user input
+                        Desktop.DrawDesktop();
+                        Console.Write($"{count} Record(s) will be deleted. Proceed [y|N]: > ");
+                        string answer = Console.ReadLine();
+                        if (answer.ToLower() == "y")
+                        {
+                            foreach(var rslt in results)
+                            {
+                                CommandBot.library.Catalogue.Remove(rslt);
+                            }
+                            Desktop.SendToWorkspace("cmd", $"Operation Complete. - {count} records deleted");
+                        }
+                        else Desktop.SendToWorkspace("cmd", "Operation Aborted.");
+
+                        Desktop.DrawDesktop();
                     }
                 }
-                if (count == query.Count && !noMatch)
-                {
-                    result = book;
-                    break;
-                }
             }
-            if (noMatch) Desktop.SendToWorkspace("cmd", "ERROR: Record not found.");
             else
             {
-                Desktop.Workspaces["info"].FlushBuffer();
-                Desktop.SendToWorkspace("info",
-                    $"Title:\t {result.Title}\n" +
-                    $"Author:\t {result.AuthorFirstName}, {result.AuthorLastName}\n" +
-                    $"ISBN:\t {result.ISBN.ToString()}\n" +
-                    $"Publisher:\t {result.Publisher}\n" +
-                    $"Genre:\t {result.Genre}\n" +
-                    $"Category:\t {(_TypeEnum)result.Type}\n");
+                if (Book.ValidateISBN(ISBN))
+                {
+                    Desktop.Workspaces["cmd"].FlushBuffer();
+                    Desktop.Workspaces["info"].FlushBuffer();
+                    try
+                    {
+                        Desktop.Workspaces["cmd"].FlushBuffer();
+                        // Get user input
+                        Desktop.DrawDesktop();
+                        Console.Write($"ISBN {ISBN} will be deleted. Proceed [y|N]: > ");
+                        string answer = Console.ReadLine();
+                        if (answer.ToLower() == "y")
+                        {
+                            CommandBot.library.Catalogue.Remove(Book.ParseISBN(ISBN));
+                            Desktop.SendToWorkspace("cmd", $"Operation Complete. - ISBN {ISBN} deleted");
+                        }
+                        else Desktop.SendToWorkspace("cmd", "Operation Aborted.");
+                    }
+                    catch (Exception e)
+                    {
+                        Desktop.SendToWorkspace("cmd", $"ERROR: Operation Failed. - {e.Message}");
+                    }
+                }
+                else
+                {
+                    Desktop.SendToWorkspace("cmd", "ERROR: Invalid ISBN.");
+                    Desktop.DrawDesktop();
+                }
             }
             return 0;
         }
