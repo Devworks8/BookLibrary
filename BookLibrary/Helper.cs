@@ -31,7 +31,12 @@ namespace BookLibrary
 {
     public static class Display
     {
-        // This method adds padding to a string to center align
+        /// <summary>
+        /// Center align string
+        /// </summary>
+        /// <param name="s">String to align</param>
+        /// <param name="width">Width if line to center on</param>
+        /// <returns>Padded string</returns>
         public static string CenterAligned(string s, int width)
         {
             if (s.Length >= width)
@@ -45,7 +50,12 @@ namespace BookLibrary
             return new string(' ', leftPadding) + s + new string(' ', rightPadding);
         }
 
-        // This method adds padding to the left of the string
+        /// <summary>
+        /// Shift string to the right
+        /// </summary>
+        /// <param name="s">String to shift</param>
+        /// <param name="width">Number of spaces to shift</param>
+        /// <returns>Padded string</returns>
         public static string AddPadding(string s, int width)
         {
             return new string(' ', width) + s;

@@ -144,6 +144,16 @@ namespace BookLibrary
         {
         }
 
+        /// <summary>
+        /// Book object
+        /// </summary>
+        /// <param name="title">Book Title</param>
+        /// <param name="afname">Author's First Name</param>
+        /// <param name="alname">Author's Last Name</param>
+        /// <param name="isbn">ISBN</param>
+        /// <param name="publisher">Publisher Name</param>
+        /// <param name="genre">Literary Genre</param>
+        /// <param name="type">Literary Category</param>
         public Book(string title, string afname, string alname, _ISBNStruct isbn, string publisher, _GenreEnum genre, _TypeEnum type)
         {
             Title = title;
@@ -155,6 +165,11 @@ namespace BookLibrary
             Type = type;
         }
 
+        /// <summary>
+        /// Validate ISBN format
+        /// </summary>
+        /// <param name="isbn">ISBN</param>
+        /// <returns>True if valid</returns>
         static public bool ValidateISBN(string isbn)
         {
             string[] Parts = isbn.Split('-');
@@ -185,6 +200,11 @@ namespace BookLibrary
             return true;
         }
 
+        /// <summary>
+        /// Convert ISBN string to ISBNStruct
+        /// </summary>
+        /// <param name="isbn">ISBN</param>
+        /// <returns>ISBNStruct</returns>
         static public _ISBNStruct ParseISBN(string isbn)
         {
             _ISBNStruct parsedISBN = new _ISBNStruct();

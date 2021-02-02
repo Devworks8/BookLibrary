@@ -1,10 +1,10 @@
 ﻿// Name: Christian Lachapelle
 //  Student #: A00230066
 //
-//  Title: 
-//  Version: 
+//  Title: Library class
+//  Version: 1.0.0
 //
-//  Description: 
+//  Description: Contains the Catalogue of Book objects.
 //
 //
 // Library.cs
@@ -41,6 +41,17 @@ namespace BookLibrary
             Catalogue = new Dictionary<_ISBNStruct, Book>();
         }
 
+        /// <summary>
+        /// Create and add a new book to the catalogue
+        /// </summary>
+        /// <param name="title">Book Title</param>
+        /// <param name="afname">Author's First Name</param>
+        /// <param name="alname">Author's Last Name</param>
+        /// <param name="isbn">ISBN</param>
+        /// <param name="publisher">Publisher Name</param>
+        /// <param name="genre">Literary Genre</param>
+        /// <param name="type">Litereary Category</param>
+        /// <returns>Result string</returns>
         public string NewBook(string title, string afname, string alname, _ISBNStruct isbn, string publisher, _GenreEnum genre, _TypeEnum type)
         {
             try

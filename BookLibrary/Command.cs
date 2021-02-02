@@ -1,10 +1,10 @@
 ﻿// Name: Christian Lachapelle
 //  Student #: A00230066
 //
-//  Title: CLI
+//  Title: Command
 //  Version: 1.0.0
 //
-//  Description: Command Line Interface
+//  Description: Command executes the action from a Receiver
 //
 //
 // Command.cs
@@ -26,6 +26,7 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.Collections.Generic;
 
@@ -120,6 +121,10 @@ namespace BookLibrary
             return o;
         }
 
+        /// <summary>
+        /// Get user input
+        /// </summary>
+        /// <param name="prompt">Prompt to display</param>
         private static void GetUserInput(string prompt)
         {
             Console.Write(prompt);
@@ -156,12 +161,11 @@ namespace BookLibrary
                     args = input.Split(' ');
                 }
             }
-
-            // CLear Command Window
-            //Desktop.Workspaces["cmd"].FlushBuffer();
-
         }
 
+        /// <summary>
+        /// Setup display and CLI
+        /// </summary>
         public static void run()
         {
             // Create individual workspaces
@@ -207,6 +211,7 @@ namespace BookLibrary
                 $"quit\t\t Quit the program.\n\n";
 
 
+            // Send static text to their respective workspaces
             Desktop.SendToWorkspace("title", strTitle);
             Desktop.SendToWorkspace("desc", strDescription);
             Desktop.SendToWorkspace("headers", strHeaders);

@@ -1,10 +1,10 @@
 ﻿// Name: Christian Lachapelle
 //  Student #: A00230066
 //
-//  Title: 
-//  Version: 
+//  Title: Command Definitions
+//  Version: 1.0.0
 //
-//  Description: 
+//  Description: Logic for all commands when executed.
 //
 //
 // CDefs.cs
@@ -34,6 +34,9 @@ using ManyConsole;
 
 namespace BookLibrary
 {
+    /// <summary>
+    /// Help Command
+    /// </summary>
     public class HelpCommand : ConsoleCommand
     {
         public HelpCommand()
@@ -47,6 +50,9 @@ namespace BookLibrary
         }
     }
 
+    /// <summary>
+    /// Quit Command
+    /// </summary>
     public class QuitCommand : ConsoleCommand
     {
         public QuitCommand()
@@ -63,6 +69,9 @@ namespace BookLibrary
         }
     }
 
+    /// <summary>
+    /// List Command
+    /// </summary>
     public class ListCommand : ConsoleCommand
     {
         public ListCommand()
@@ -77,6 +86,7 @@ namespace BookLibrary
         {
             if (!string.IsNullOrEmpty(remainingArguments[0]))
             {
+                // List Genres
                 if (remainingArguments[0].ToLower() == "genre")
                 {
                     var values = Enum.GetValues(typeof(_GenreEnum)).Cast<_GenreEnum>();
@@ -92,9 +102,11 @@ namespace BookLibrary
                         count++;
                     }
                 }
+                // List Categories
                 if (remainingArguments[0].ToLower() == "cat")
                 {
                     var values = Enum.GetValues(typeof(_TypeEnum)).Cast<_TypeEnum>();
+
                     Desktop.Workspaces["menu"].FlushBuffer();
                     Desktop.SendToWorkspace("menu", "Code \t<-> \tDescription\n");
 
@@ -110,6 +122,9 @@ namespace BookLibrary
         }
     }
 
+    /// <summary>
+    /// Menu Command
+    /// </summary>
     public class MenuCommand : ConsoleCommand
     {
         public MenuCommand()
@@ -128,6 +143,9 @@ namespace BookLibrary
         }
     }
 
+    /// <summary>
+    /// Add Command
+    /// </summary>
     public class AddCommand : ConsoleCommand
     {
         private string Title { get; set; }
@@ -206,13 +224,16 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
             Cat = Console.ReadLine();
 
 
-            if (!Book.ValidateISBN(ISBN)) Desktop.SendToWorkspace("cmd", "ERROR: Invalid ISBN.");
+            if (!Book.ValidateISBN(ISBN)) Desktop.SendToWorkspace("cmd", "ERROR: Invalid ISBN."); // Send error message if invalid ISBN
             else Desktop.SendToWorkspace("cmd", CommandBot.library.NewBook(Title, AFName, ALName, Book.ParseISBN(ISBN), Publisher, (_GenreEnum)Convert.ToInt16(Genre), (_TypeEnum)Convert.ToInt16(Cat)));
             Desktop.DrawDesktop();
             return 0;
         }
     }
-    
+
+    /// <summary>
+    /// Delete Command
+    /// </summary>
     public class DeleteCommand : ConsoleCommand
     {
         public string Title { get; set; }
@@ -239,6 +260,10 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
             HasOption("A|ALL", "Delete all records", A => All = true);
         }
 
+        /// <summary>
+        /// Create list of tuples containing the name and value of the arguments.
+        /// </summary>
+        /// <returns>List of tuples</returns>
         private List<(string, string)> ConstructQuery()
         {
             List<(string, string)> query = new List<(string, string)>();
@@ -257,8 +282,8 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
         public override int Run(string[] remainingArguments)
         {
             Desktop.DrawDesktop();
-            var query = ConstructQuery();
 
+            var query = ConstructQuery();
             int count = 0;
             bool noMatch = false;
             Book result = new Book();
@@ -287,6 +312,7 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
                 // Parse arguments
                 else
                 {
+                    // Create a list of ISBNs to delete
                     List<_ISBNStruct> results = new List<_ISBNStruct>();
 
                     foreach (Book book in CommandBot.library.Catalogue.Values)
@@ -323,21 +349,25 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
                         if (argCount == query.Count && !noMatch)
                         {
                             count++;
-                            results.Add(book.ISBN);
+                            results.Add(book.ISBN); // Add ISBN of books that match criterias
                         }
                     }
+
                     if (results.Count == 0) Desktop.SendToWorkspace("cmd", "ERROR: Record(s) not found.");
                     else
                     {
                         Desktop.Workspaces["cmd"].FlushBuffer();
+
                         // Get user input
                         Desktop.DrawDesktop();
                         Console.Write($"{count} Record(s) will be deleted. Proceed [y|N]: > ");
                         string answer = Console.ReadLine();
+
                         if (answer.ToLower() == "y")
                         {
                             foreach(var rslt in results)
                             {
+                                // Delete records
                                 CommandBot.library.Catalogue.Remove(rslt);
                             }
                             Desktop.SendToWorkspace("cmd", $"Operation Complete. - {count} records deleted");
@@ -354,15 +384,19 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
                 {
                     Desktop.Workspaces["cmd"].FlushBuffer();
                     Desktop.Workspaces["info"].FlushBuffer();
+
                     try
                     {
                         Desktop.Workspaces["cmd"].FlushBuffer();
+
                         // Get user input
                         Desktop.DrawDesktop();
                         Console.Write($"ISBN {ISBN} will be deleted. Proceed [y|N]: > ");
                         string answer = Console.ReadLine();
+
                         if (answer.ToLower() == "y")
                         {
+                            // Delete record
                             CommandBot.library.Catalogue.Remove(Book.ParseISBN(ISBN));
                             Desktop.SendToWorkspace("cmd", $"Operation Complete. - ISBN {ISBN} deleted");
                         }
@@ -383,6 +417,9 @@ xxx-xxxxx-xxxxxxx-xxxxxx-x
         }
     }
 
+    /// <summary>
+    /// Modify Command
+    /// </summary>
     public class ModifyCommand : ConsoleCommand
     {
         public string Title { get; set; }
@@ -409,6 +446,10 @@ The ISBN is required.");
             HasOption("p|publisher=", "Publisher name.", p => Publisher = p);
         }
 
+        /// <summary>
+        /// Create list of tuples containing the name and value of the arguments.
+        /// </summary>
+        /// <returns>List of tuples</returns>
         private List<(string, string)> ConstructQuery()
         {
             List<(string, string)> query = new List<(string, string)>();
@@ -452,6 +493,7 @@ The ISBN is required.");
                             $"Genre:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Genre}\n" +
                             $"Category:\t {(_TypeEnum)CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Type}\n\n";
 
+                        // Generate custom Modified string based of changes
                         modified = $"Modified\n\n";
                         modified += String.IsNullOrEmpty(Title) ? $"Title:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Title}\n" : $"Title:\t {Title}\n";
                         modified += String.IsNullOrEmpty(AFName) ? $"Author:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].AuthorFirstName}, " : $"Author:\t {AFName}, ";
@@ -468,6 +510,7 @@ The ISBN is required.");
                         Desktop.DrawDesktop();
                         Console.Write($"Proceed with modification [y|N]: > ");
                         string answer = Console.ReadLine();
+
                         if (answer.ToLower() == "y")
                         {
                             foreach (var arg in query)
@@ -520,6 +563,9 @@ The ISBN is required.");
         }
     }
 
+    /// <summary>
+    /// Fetch Command
+    /// </summary>
     public class FetchCommand : ConsoleCommand
     {
         public string Title { get; set; }
@@ -546,6 +592,10 @@ Expected usage at the CLI: fetch <options>");
             HasOption("p|publisher=", "Publisher name.", p => Publisher = p);
         }
 
+        /// <summary>
+        /// Create list of tuples containing the name and value of the arguments.
+        /// </summary>
+        /// <returns>List of tuples</returns>
         private List<(string, string)> ConstructQuery()
         {
             List<(string, string)> query = new List<(string, string)>();
@@ -584,6 +634,7 @@ Expected usage at the CLI: fetch <options>");
 
                     foreach (Book book in CommandBot.library.Catalogue.Values)
                     {
+                        // Display results when workspace buffer is full
                         if (chunk + blockSize > workspaceSize)
                         {
                             Desktop.Workspaces["info"].FlushBuffer();
@@ -600,6 +651,7 @@ Expected usage at the CLI: fetch <options>");
                             chunk = blockSize;
                             count++;
                         }
+                        // Add to workspace buffer
                         else
                         {
                             chunk += blockSize;
@@ -654,7 +706,8 @@ Expected usage at the CLI: fetch <options>");
                             }
                             argCount++;
                         }
-                        if (argCount == query.Count && !noMatch)
+
+                        if (argCount == query.Count && !noMatch) // Match found
                         {
                             count++;
                             results += $"Title:\t {book.Title}\n" +
@@ -665,6 +718,7 @@ Expected usage at the CLI: fetch <options>");
                                 $"Category:\t {(_TypeEnum)book.Type}\n\n";
                         }
                     }
+
                     if (String.IsNullOrEmpty(results)) Desktop.SendToWorkspace("cmd", "ERROR: Record not found.");
                     else
                     {
@@ -678,10 +732,12 @@ Expected usage at the CLI: fetch <options>");
             }
             else
             {
+                // ISBN provided, skip search and get book using the ISBN key
                 if (Book.ValidateISBN(ISBN))
                 {
                     Desktop.Workspaces["cmd"].FlushBuffer();
                     Desktop.Workspaces["info"].FlushBuffer();
+
                     try
                     {
                         Desktop.SendToWorkspace("info", $"Title:\t {CommandBot.library.Catalogue[Book.ParseISBN(ISBN)].Title}\n" +

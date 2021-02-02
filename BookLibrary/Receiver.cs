@@ -1,10 +1,11 @@
 ﻿// Name: Christian Lachapelle
 //  Student #: A00230066
 //
-//  Title: 
-//  Version: 
+//  Title: Receiver class
+//  Version: 1.0.0
 //
-//  Description: 
+//  Description: The Receiver is the object that has an action to be executed
+//               from the Command.
 //
 //
 // Receiver.cs
@@ -26,6 +27,7 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
 using System.IO;
 using System.Collections.Generic;

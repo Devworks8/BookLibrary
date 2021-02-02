@@ -1,10 +1,11 @@
 ﻿// Name: Christian Lachapelle
 //  Student #: A00230066
 //
-//  Title: 
-//  Version: 
+//  Title: Invoker class
+//  Version: 1.0.0
 //
-//  Description: 
+//  Description: The invoker for the Command Design Pattern.
+//               It tells the Commands to execute their actions.
 //
 //
 // Invoker.cs
@@ -39,6 +40,12 @@ namespace BookLibrary
         private string[] _args;
         private string _id;
 
+        /// <summary>
+        /// Parse arguments to be passed to the command.
+        /// </summary>
+        /// <param name="command">Command Name</param>
+        /// <param name="args">Array of Arguments</param>
+        /// <param name="id">Workstation ID</param>
         public void SetCommand(Command command, string[] args, string id)
         {
             this._command = command;
